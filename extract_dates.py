@@ -33,7 +33,7 @@ def join_CHARTS_data(interval, company):
     return joined_df
 
 
-json_dir = r"C:/Users/teeja/Documents/University/Spring21/CSE573_DM/Data/News"
+json_dir = r"ENTER_DIR_HERE"
 count = 0
 
 sub_folders = os.walk(json_dir)
@@ -67,7 +67,7 @@ news_df["published_60"] = news_df["published"].dt.round("1H")
 news_df["published_240"] = news_df["published"].dt.round("4H")
 news_df["published_1440"] = news_df["published"].dt.round("1D")
 
-CHARTS_dir = r"C:/Users/teeja/Documents/University/Spring21/CSE573_DM/Data/"
+CHARTS_dir = r"ENTER_DIR_HERE"
 
 amazon5_df = join_CHARTS_data(5, "AMAZON")
 amazon15_df = join_CHARTS_data(15, "AMAZON")
