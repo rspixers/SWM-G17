@@ -27,7 +27,7 @@ import math
 
 # news=data['text']
 # news=np.char.lower(news)
-# nltk.download('stopwords')
+nltk.download('stopwords')
 # stop_words=stopwords.words('english')
 
 # new_text = ""
