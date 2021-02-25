@@ -83,7 +83,7 @@ def convert_numbers(data):
 
 
 def preprocess(data):
-    data = convert_lower_case(data)
+    # data = convert_lower_case(data)
     data = remove_punctuation(data) #remove comma seperately
     data = remove_apostrophe(data)
     data = remove_stop_words(data)
@@ -98,7 +98,7 @@ def preprocess(data):
 
 
 
-with open('/Users/prashanth/Documents/projects/SWM/data/News/2018_01_d157b48c57be246ec7dd80e7af4388a2/news_0005446.json') as f:
+with open(os.getcwd() + '/data/News/2018_01_d157b48c57be246ec7dd80e7af4388a2/news_0005446.json') as f:
   data = json.load(f)
 
 # print(data['text'])
