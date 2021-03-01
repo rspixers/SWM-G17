@@ -4,6 +4,8 @@ import json
 import pytz
 import nltk
 
+nltk.download("words")
+nltk.download("brown")
 nltk.download("punkt")
 import numpy as np
 import pandas as pd
@@ -11,9 +13,29 @@ import dateutil.parser
 
 # from textblob import TextBlob
 from datetime import datetime, timedelta
-from nltk.tokenize import sent_tokenize
+from nltk.tokenize import word_tokenize
+
 import re
 import nltk.data
+
+from nltk.stem import PorterStemmer
+
+import time
+
+
+# def stemming(data):
+#     stemmer = PorterStemmer()
+#     tokens = word_tokenize(str(data))
+#     new_text = ""
+#     for w in tokens:
+#         new_text = new_text + " " + stemmer.stem(w)
+#     return new_text
+
+
+start = time.time()
+
+global words
+words = set(nltk.corpus.brown.words())
 
 times = []
 text = []
@@ -75,6 +97,23 @@ def filter_only_mention(text, stock, company):
     return filterlist
 
 
+def filter_only_language(mention_filtered_text):
+    global words
+    # print(sent_stemmed)
+    preparse_length = len(word_tokenize(str(mention_filtered_text)))
+    text = mention_filtered_text
+    if preparse_length:
+        parsed_length = len(
+            [w for w in word_tokenize(str(mention_filtered_text)) if w in words]
+        )
+        print(parsed_length / preparse_length)
+        if parsed_length / preparse_length < 0.5:
+            text = None
+    else:
+        text = None
+    return text
+
+
 amazon_df = pd.DataFrame()
 apple_df = pd.DataFrame()
 
@@ -84,9 +123,14 @@ apple_df = news_df.copy(deep=True)
 amazon_df["filteredtext"] = amazon_df["text"].apply(
     filter_only_mention, args=("amzn", "amazon")
 )
+
+amazon_df["filteredtext"] = amazon_df["filteredtext"].apply(filter_only_language)
+
 apple_df["filteredtext"] = apple_df["text"].apply(
     filter_only_mention, args=("aapl", "apple")
 )
+
+apple_df["filteredtext"] = apple_df["filteredtext"].apply(filter_only_language)
 
 # Just for safety :P
 amazon5_df = amazon_df.copy(deep=True)
@@ -209,3 +253,6 @@ apple30_df.to_csv("data/apple30.csv", encoding="utf-8")
 apple60_df.to_csv("data/apple60.csv", encoding="utf-8")
 apple240_df.to_csv("data/apple240.csv", encoding="utf-8")
 apple1440_df.to_csv("data/apple1440.csv", encoding="utf-8")
+
+end = time.time()
+print(end - start)
