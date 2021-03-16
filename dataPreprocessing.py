@@ -178,13 +178,6 @@ apple1440_df["rounded_time"] = (apple1440_df["published"]).dt.round("1D")
 CHARTS_dir = "./data/CHARTS/"
 
 
-def stock_direction(data):
-    if data > 0:
-        return 1
-    else:
-        return 0
-
-
 def join_CHARTS_data_and_GT(source_df, interval, company):
     CHARTS_df = pd.read_csv(
         os.path.join(CHARTS_dir, company + str(interval) + ".csv"),
@@ -212,7 +205,7 @@ def join_CHARTS_data_and_GT(source_df, interval, company):
     else:
         CHARTS_df["timestamp"] = CHARTS_df["temp_timestamp"]
     CHARTS_df["label"] = (CHARTS_df["Close"] - CHARTS_df["Open"]).apply(
-        lambda x: 1 if x < 0 else -1
+        lambda x: 1 if x > 0 else -1
     )
 
     joined_df = pd.merge(
