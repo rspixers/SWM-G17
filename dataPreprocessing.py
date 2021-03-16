@@ -1,95 +1,340 @@
+import os
 import glob
 import json
-import os
+import pytz
+import nltk
+
+nltk.download("words")
+nltk.download("brown")
+nltk.download("punkt")
+import numpy as np
 import pandas as pd
+import dateutil.parser
+
+# from textblob import TextBlob
 from datetime import datetime, timedelta
-from  termFrequency import  preprocess
+from nltk.tokenize import word_tokenize
+
+import re
+import nltk.data
+
+from nltk.stem import PorterStemmer
+
+import time
+import string
+
+# def stemming(data):
+#     stemmer = PorterStemmer()
+#     tokens = word_tokenize(str(data))
+#     new_text = ""
+#     for w in tokens:
+#         new_text = new_text + " " + stemmer.stem(w)
+#     return new_text
 
 
-def join_CHARTS_data(interval, company):
+start = time.time()
+
+global words
+words = set(nltk.corpus.brown.words())
+
+times = []
+text = []
+news_file_loc = []
+sites = []
+organizations = []
+titles = []
+published_times = []
+time_zone = pytz.timezone("GMT")
+news_path = "./data/News/"
+json_files = glob.glob(news_path + "*/*.json")
+print(len(json_files))
+
+for news in json_files:
+    with open(news, "r", encoding="utf-8") as f:
+        record = json.load(f)
+        local_time, offset = record["published"].split("+")
+        local_datetime = datetime.strptime(local_time, "%Y-%m-%dT%H:%M:%S.%f")
+        offset_datetime = datetime.strptime(offset, "%H:%M")
+        published_times.append(
+            local_datetime
+            - timedelta(hours=offset_datetime.hour, minutes=offset_datetime.minute)
+        )
+        iso_time = dateutil.parser.isoparse(record["published"]).astimezone(time_zone)
+        times.append(iso_time)
+        news_file_loc.append(news)
+        text.append(record["text"])
+        sites.append(record["thread"]["site"])
+        titles.append(record["title"])
+
+news_df = pd.DataFrame(
+    {
+        "timestamp": times,
+        "published": published_times,
+        "text": text,
+        "site": sites,
+        "news_file_loc": news_file_loc,
+    },
+)
+
+
+tokenizer = nltk.data.load("tokenizers/punkt/english.pickle")
+
+
+def filter_only_mention(text, stock, company):
+    filterlist = []
+    sentences = tokenizer.tokenize(text)
+    if text.startswith("Official Notice Nr"):
+        return None
+    for sent in sentences:
+        sent = sent.lower()
+        sent = sent.replace("\n", " ")
+        sent = re.sub(r"[^A-Za-z0-9 \. \:]+", "", sent)
+        #         sent = re.sub(' +', ' ', sent)
+        #         sent = re.sub('\.+', '.', sent)
+        if (stock in sent) or (company in sent):
+            filterlist.append(sent)
+    if len(filterlist) == 0:
+        return None
+    return filterlist
+
+
+def filter_only_language(mention_filtered_text):
+    text = mention_filtered_text
+    try:
+        mention_filtered_text = " ".join(mention_filtered_text)
+        if mention_filtered_text:
+            mention_filtered_text = mention_filtered_text.translate(
+                str.maketrans("", "", string.punctuation)
+            )
+            mention_filtered_text = mention_filtered_text.translate(
+                str.maketrans("", "", string.digits)
+            )
+            global words
+            # print(sent_stemmed)
+            preparse_length = len(word_tokenize(str(mention_filtered_text)))
+            if preparse_length:
+                parsed_length = len(
+                    [w for w in word_tokenize(str(mention_filtered_text)) if w in words]
+                )
+                if parsed_length / preparse_length < 0.8:
+                    text = None
+            else:
+                text = None
+    except:
+        print(mention_filtered_text)
+    return text
+
+
+print(len(news_df))
+news_df.drop_duplicates(subset=["timestamp", "published", "text", "site"], inplace=True)
+print(len(news_df))
+news_df.to_csv("data/news_df.csv", encoding="utf-8", index=False)
+
+amazon_df = news_df
+apple_df = news_df
+
+amazon_df["filteredtext"] = amazon_df["text"].apply(
+    filter_only_mention, args=("amzn", "amazon")
+)
+
+amazon_df["filteredtext"] = amazon_df["filteredtext"].apply(filter_only_language)
+
+apple_df["filteredtext"] = apple_df["text"].apply(
+    filter_only_mention, args=("aapl", "apple")
+)
+
+apple_df["filteredtext"] = apple_df["filteredtext"].apply(filter_only_language)
+
+# Just for safety :P
+amazon5_df = amazon_df.copy(deep=True)
+amazon15_df = amazon_df.copy(deep=True)
+amazon30_df = amazon_df.copy(deep=True)
+amazon60_df = amazon_df.copy(deep=True)
+amazon240_df = amazon_df.copy(deep=True)
+amazon1440_df = amazon_df.copy(deep=True)
+
+
+apple5_df = apple_df.copy(deep=True)
+apple15_df = apple_df.copy(deep=True)
+apple30_df = apple_df.copy(deep=True)
+apple60_df = apple_df.copy(deep=True)
+apple240_df = apple_df.copy(deep=True)
+apple1440_df = apple_df.copy(deep=True)
+
+amazon5_df["rounded_time"] = (amazon5_df["published"]).dt.round("5min")
+amazon15_df["rounded_time"] = (amazon15_df["published"]).dt.round("15min")
+amazon30_df["rounded_time"] = (amazon30_df["published"]).dt.round("30min")
+amazon60_df["rounded_time"] = (amazon60_df["published"]).dt.round("1H")
+amazon240_df["rounded_time"] = (amazon240_df["published"]).dt.round("4H")
+amazon1440_df["rounded_time"] = (amazon1440_df["published"]).dt.round("1D")
+
+apple5_df["rounded_time"] = (apple5_df["published"]).dt.round("5min")
+apple15_df["rounded_time"] = (apple15_df["published"]).dt.round("15min")
+apple30_df["rounded_time"] = (apple30_df["published"]).dt.round("30min")
+apple60_df["rounded_time"] = (apple60_df["published"]).dt.round("1H")
+apple240_df["rounded_time"] = (apple240_df["published"]).dt.round("4H")
+apple1440_df["rounded_time"] = (apple1440_df["published"]).dt.round("1D")
+
+CHARTS_dir = "./data/CHARTS/"
+
+
+def stock_direction(data):
+    if data > 0:
+        return 1
+    else:
+        return 0
+
+
+def join_CHARTS_data_and_GT(source_df, interval, company):
     CHARTS_df = pd.read_csv(
-        os.path.join(CHARTS_dir, "CHARTS/" + company + str(interval) + ".csv"),
+        os.path.join(CHARTS_dir, company + str(interval) + ".csv"),
         header=None,
+        index_col=False,
     )
     CHARTS_df.columns = [
         "year.month.day",
         "24hr",
         "Open",
-        "Close",
         "High",
         "Low",
+        "Close",
         "Volume",
     ]
-    CHARTS_df["timestamp"] = pd.to_datetime(
+    CHARTS_df["temp_timestamp"] = pd.to_datetime(
         CHARTS_df["year.month.day"].astype(str) + "T" + CHARTS_df["24hr"],
         format="%Y.%m.%dT%H:%M",
     )
-    print(CHARTS_df)
-    right_on = "published_" + str(interval)
+    right_on = "rounded_time"
+    if interval == 60:
+        CHARTS_df["timestamp"] = CHARTS_df["temp_timestamp"].dt.round("1H")
+    elif interval == 240:
+        CHARTS_df["timestamp"] = CHARTS_df["temp_timestamp"].dt.round("4H")
+    else:
+        CHARTS_df["timestamp"] = CHARTS_df["temp_timestamp"]
+    CHARTS_df["label"] = (CHARTS_df["Close"] - CHARTS_df["Open"]).apply(
+        lambda x: 1 if x < 0 else -1
+    )
+
     joined_df = pd.merge(
-        CHARTS_df, news_df, left_on="timestamp", right_on=right_on, how="left"
+        CHARTS_df,
+        source_df,
+        left_on="timestamp",
+        right_on=right_on,
+        how="left",
+        suffixes=("", "_y"),
     )
-    ########### READD AFTER TESTING
-    joined_df.drop(["entities"], axis=1, inplace=True)
+    joined_df.drop(joined_df.filter(regex="_y$").columns.tolist(), axis=1, inplace=True)
+    joined_df.drop(["temp_timestamp"], axis=1, inplace=True)
+
+    ########### READ AFTER TESTING
+    # joined_df.drop(["entities"], axis=1, inplace=True)
     return joined_df
-json_dir = r"/Users/prashanth/Documents/projects/SWM/data/News"
-count = 0
-sub_folders = os.walk(json_dir)
-data = []
-for folder_index, json_folder_contents in enumerate(sub_folders):
-    if folder_index != 0:
-        json_files = json_folder_contents[2]
-        for json_file in json_files:
-            json_filepath = os.path.join(json_folder_contents[0], json_file)
-            with open(json_filepath, encoding="utf-8") as json_data:
-                data.append(json.load(json_data))
-            count = count + 1
-        print(folder_index)
-print(count)
-i=0
-for record in data:
-    # print(record["published"])
-    i+=1
-    print(i)
-    record["Processed"]=preprocess(record['text'])
-    local_time, offset = record["published"].split("+")
-    local_datetime = datetime.strptime(local_time, "%Y-%m-%dT%H:%M:%S.%f")
-    offset_datetime = datetime.strptime(offset, "%H:%M")
-    record["published"] = local_datetime - timedelta(
-        hours=offset_datetime.hour, minutes=offset_datetime.minute
-    )
-    # print(record["published"])
-news_df = pd.DataFrame.from_dict(data, orient="columns")
-news_df["published_5"] = news_df["published"].dt.round("5min")
-news_df["published_15"] = news_df["published"].dt.round("15min")
-news_df["published_30"] = news_df["published"].dt.round("30min")
-news_df["published_60"] = news_df["published"].dt.round("1H")
-news_df["published_240"] = news_df["published"].dt.round("4H")
-news_df["published_1440"] = news_df["published"].dt.round("1D")
-print(news_df.tail())
-CHARTS_dir = r"/Users/prashanth/Documents/projects/SWM/data/"
-amazon5_df = join_CHARTS_data(5, "AMAZON")
-amazon15_df = join_CHARTS_data(15, "AMAZON")
-amazon30_df = join_CHARTS_data(30, "AMAZON")
-amazon60_df = join_CHARTS_data(60, "AMAZON")
-amazon240_df = join_CHARTS_data(240, "AMAZON")
-amazon1440_df = join_CHARTS_data(1440, "AMAZON")
-apple5_df = join_CHARTS_data(5, "APPLE")
-apple15_df = join_CHARTS_data(15, "APPLE")
-apple30_df = join_CHARTS_data(30, "APPLE")
-apple60_df = join_CHARTS_data(60, "APPLE")
-apple240_df = join_CHARTS_data(240, "APPLE")
-apple1440_df = join_CHARTS_data(1440, "APPLE")
-# # Outputting data for visual QA Testing / writing to and from csv's should be discouraged since the csv's will most likely not handle text well if delimiter is seen
-# amazon5_df.to_csv("data/amazon5.csv", index=False, encoding="utf-8")
-# amazon15_df.to_csv("data/amazon15.csv", index=False, encoding="utf-8")
-# amazon30_df.to_csv("data/amazon30.csv", index=False, encoding="utf-8")
-# amazon60_df.to_csv("data/amazon60.csv", index=False, encoding="utf-8")
-# amazon240_df.to_csv("data/amazon240.csv", index=False, encoding="utf-8")
-# amazon1440_df.to_csv("data/amazon1440.csv", index=False, encoding="utf-8")
-# apple5_df.to_csv("data/apple5.csv", index=False, encoding="utf-8")
-# apple15_df.to_csv("data/apple15.csv", index=False, encoding="utf-8")
-# apple30_df.to_csv("data/apple30.csv", index=False, encoding="utf-8")
-# apple60_df.to_csv("data/apple60.csv", index=False, encoding="utf-8")
-# apple240_df.to_csv("data/apple240.csv", index=False, encoding="utf-8")
-# apple1440_df.to_csv("data/apple1440.csv", index=False, encoding="utf-8")
+
+
+amazon5_df = join_CHARTS_data_and_GT(amazon5_df, 5, "AMAZON")
+amazon15_df = join_CHARTS_data_and_GT(amazon15_df, 15, "AMAZON")
+amazon30_df = join_CHARTS_data_and_GT(amazon30_df, 30, "AMAZON")
+amazon60_df = join_CHARTS_data_and_GT(amazon60_df, 60, "AMAZON")
+amazon240_df = join_CHARTS_data_and_GT(amazon240_df, 240, "AMAZON")
+amazon1440_df = join_CHARTS_data_and_GT(amazon1440_df, 1440, "AMAZON")
+
+apple5_df = join_CHARTS_data_and_GT(apple5_df, 5, "APPLE")
+apple15_df = join_CHARTS_data_and_GT(apple15_df, 15, "APPLE")
+apple30_df = join_CHARTS_data_and_GT(apple30_df, 30, "APPLE")
+apple60_df = join_CHARTS_data_and_GT(apple60_df, 60, "APPLE")
+apple240_df = join_CHARTS_data_and_GT(apple240_df, 240, "APPLE")
+apple1440_df = join_CHARTS_data_and_GT(apple1440_df, 1440, "APPLE")
+
+amazon5_df.dropna(inplace=True)
+amazon15_df.dropna(inplace=True)
+amazon30_df.dropna(inplace=True)
+amazon60_df.dropna(inplace=True)
+amazon240_df.dropna(inplace=True)
+amazon1440_df.dropna(inplace=True)
+
+apple5_df.dropna(inplace=True)
+apple15_df.dropna(inplace=True)
+apple30_df.dropna(inplace=True)
+apple60_df.dropna(inplace=True)
+apple240_df.dropna(inplace=True)
+apple1440_df.dropna(inplace=True)
+
+amazon5_df.drop(["text"], axis=1, inplace=True)
+amazon15_df.drop(["text"], axis=1, inplace=True)
+amazon30_df.drop(["text"], axis=1, inplace=True)
+amazon60_df.drop(["text"], axis=1, inplace=True)
+amazon240_df.drop(["text"], axis=1, inplace=True)
+amazon1440_df.drop(["text"], axis=1, inplace=True)
+
+apple5_df.drop(["text"], axis=1, inplace=True)
+apple15_df.drop(["text"], axis=1, inplace=True)
+apple30_df.drop(["text"], axis=1, inplace=True)
+apple60_df.drop(["text"], axis=1, inplace=True)
+apple240_df.drop(["text"], axis=1, inplace=True)
+apple1440_df.drop(["text"], axis=1, inplace=True)
+
+
+def remove_duplicates(df):
+    df.sort_values(by=["filteredtext"], inplace=True)
+    chunk_size = 1000
+    chunks = []
+    count = 0
+    # come back and take care of boundary conditions
+    while not df.empty:
+        print(len(df))
+        count += 1
+        print("iteration", count)
+        chunks.append(df[:chunk_size])
+        df = df.iloc[chunk_size - 1 :]
+        if count != 1:
+            print(str(chunks[-1].iloc[-1]["filteredtext"]))
+            print(str(chunks[-2].iloc[0]["filteredtext"]))
+            if str(chunks[-1].iloc[-1]["filteredtext"]) == str(
+                chunks[-2].iloc[0]["filteredtext"]
+            ):
+                chunks[-2].drop(chunks[-2].tail(1).index, inplace=True)
+
+    for chunk in chunks:
+        chunk["row_string"] = (
+            chunk["published"].astype(str)
+            + chunk["site"].astype(str)
+            + chunk["filteredtext"].astype(str)
+        )
+
+        chunk.drop_duplicates(subset=["row_string"], keep="first", inplace=True)
+    df = pd.concat(chunks, ignore_index=True)
+    df.drop(["row_string"], axis=1, inplace=True)
+    print(len(df))
+    return df
+
+
+amazon5_df = remove_duplicates(amazon5_df)
+amazon15_df = remove_duplicates(amazon15_df)
+amazon30_df = remove_duplicates(amazon30_df)
+amazon60_df = remove_duplicates(amazon60_df)
+amazon240_df = remove_duplicates(amazon240_df)
+amazon1440_df = remove_duplicates(amazon1440_df)
+
+apple5_df = remove_duplicates(apple5_df)
+apple15_df = remove_duplicates(apple15_df)
+apple30_df = remove_duplicates(apple30_df)
+apple60_df = remove_duplicates(apple60_df)
+apple240_df = remove_duplicates(apple240_df)
+apple1440_df = remove_duplicates(apple1440_df)
+
+amazon5_df.to_csv("data/amazon5.csv", encoding="utf-8", index=False)
+amazon15_df.to_csv("data/amazon15.csv", encoding="utf-8", index=False)
+amazon30_df.to_csv("data/amazon30.csv", encoding="utf-8", index=False)
+amazon60_df.to_csv("data/amazon60.csv", encoding="utf-8", index=False)
+amazon240_df.to_csv("data/amazon240.csv", encoding="utf-8", index=False)
+amazon1440_df.to_csv("data/amazon1440.csv", encoding="utf-8", index=False)
+
+apple5_df.to_csv("data/apple5.csv", encoding="utf-8", index=False)
+apple15_df.to_csv("data/apple15.csv", encoding="utf-8", index=False)
+apple30_df.to_csv("data/apple30.csv", encoding="utf-8", index=False)
+apple60_df.to_csv("data/apple60.csv", encoding="utf-8", index=False)
+apple240_df.to_csv("data/apple240.csv", encoding="utf-8", index=False)
+apple1440_df.to_csv("data/apple1440.csv", encoding="utf-8", index=False)
+
+end = time.time()
+print(end - start)
