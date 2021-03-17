@@ -95,13 +95,13 @@ def filter_only_mention(text, stock, company):
             filterlist.append(sent)
     if len(filterlist) == 0:
         return None
-    return filterlist
+    filtered_text = " ".join(filterlist)
+    return filtered_text
 
 
 def filter_only_language(mention_filtered_text):
     text = mention_filtered_text
     try:
-        mention_filtered_text = " ".join(mention_filtered_text)
         if mention_filtered_text:
             mention_filtered_text = mention_filtered_text.translate(
                 str.maketrans("", "", string.punctuation)
