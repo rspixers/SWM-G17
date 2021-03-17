@@ -100,28 +100,32 @@ def filter_only_mention(text, stock, company):
 
 
 def filter_only_language(mention_filtered_text):
-    text = mention_filtered_text
-    try:
-        if mention_filtered_text:
-            mention_filtered_text = mention_filtered_text.translate(
-                str.maketrans("", "", string.punctuation)
-            )
-            mention_filtered_text = mention_filtered_text.translate(
-                str.maketrans("", "", string.digits)
-            )
-            global words
-            # print(sent_stemmed)
-            preparse_length = len(word_tokenize(str(mention_filtered_text)))
-            if preparse_length:
-                parsed_length = len(
-                    [w for w in word_tokenize(str(mention_filtered_text)) if w in words]
-                )
-                if parsed_length / preparse_length < 0.8:
-                    text = None
-            else:
+    text = ""
+    if mention_filtered_text:
+        mention_filtered_text = " ".join(mention_filtered_text.split())
+        mention_filtered_text = mention_filtered_text.translate(
+            str.maketrans("", "", string.punctuation)
+        )
+        mention_filtered_text = mention_filtered_text.translate(
+            str.maketrans("", "", string.digits)
+        )
+        mention_filtered_text = mention_filtered_text.lower()
+        text = mention_filtered_text
+        mention_filtered_list = word_tokenize(str(mention_filtered_text))
+        global words
+        # print(sent_stemmed)
+        preparse_length = len(mention_filtered_list)
+        if preparse_length:
+            parsed_filter_list = [w for w in mention_filtered_list if w in words]
+            parsed_length = len(parsed_filter_list)
+            if parsed_length / preparse_length < 0.8:
                 text = None
-    except:
-        print(mention_filtered_text)
+            else:
+                text = " ".join(parsed_filter_list)
+        else:
+            text = None
+    else:
+        text = None
     return text
 
 
