@@ -23,20 +23,16 @@ from nltk.stem import PorterStemmer
 import time
 import string
 
-# def stemming(data):
-#     stemmer = PorterStemmer()
-#     tokens = word_tokenize(str(data))
-#     new_text = ""
-#     for w in tokens:
-#         new_text = new_text + " " + stemmer.stem(w)
-#     return new_text
+import en_core_web_lg
 
 
 start = time.time()
 
 global words
 words = set(nltk.corpus.brown.words())
-
+words.add("aapl")
+words.add("amzn")
+words.add("amazon")
 times = []
 text = []
 news_file_loc = []
@@ -79,6 +75,9 @@ news_df = pd.DataFrame(
 
 tokenizer = nltk.data.load("tokenizers/punkt/english.pickle")
 
+nlp = en_core_web_lg.load()
+stopwords = nlp.Defaults.stop_words
+
 
 def filter_only_mention(text, stock, company):
     filterlist = []
@@ -88,7 +87,7 @@ def filter_only_mention(text, stock, company):
     for sent in sentences:
         sent = sent.lower()
         sent = sent.replace("\n", " ")
-        sent = re.sub(r"[^A-Za-z0-9 \. \:]+", "", sent)
+        sent = re.sub(r"[^A-Za-z \. \:]+", "", sent)
         #         sent = re.sub(' +', ' ', sent)
         #         sent = re.sub('\.+', '.', sent)
         if (stock in sent) or (company in sent):
@@ -99,34 +98,38 @@ def filter_only_mention(text, stock, company):
     return filtered_text
 
 
+def filterStopwords(text):
+    return " ".join([w for w in text.split() if w not in stopwords])
+
+
+def lemmatize(text):
+    return " ".join([lemma.lemma_ if lemma.lemma_ else text for lemma in nlp(text)])
+
+
 def filter_only_language(mention_filtered_text):
-    text = ""
-    if mention_filtered_text:
-        mention_filtered_text = " ".join(mention_filtered_text.split())
-        mention_filtered_text = mention_filtered_text.translate(
-            str.maketrans("", "", string.punctuation)
-        )
-        mention_filtered_text = mention_filtered_text.translate(
-            str.maketrans("", "", string.digits)
-        )
-        mention_filtered_text = mention_filtered_text.lower()
-        text = mention_filtered_text
-        mention_filtered_list = word_tokenize(str(mention_filtered_text))
-        global words
-        # print(sent_stemmed)
-        preparse_length = len(mention_filtered_list)
-        if preparse_length:
-            parsed_filter_list = [w for w in mention_filtered_list if w in words]
-            parsed_length = len(parsed_filter_list)
-            if parsed_length / preparse_length < 0.8:
-                text = None
-            else:
-                text = " ".join(parsed_filter_list)
+    mention_filtered_text = mention_filtered_text.translate(
+        str.maketrans("", "", string.punctuation)
+    )
+    # mention_filtered_text = mention_filtered_text.translate(
+    #     str.maketrans("", "", string.digits)
+    # )
+    mention_filtered_list = word_tokenize(str(mention_filtered_text))
+    global words
+    preparse_length = float(len(mention_filtered_list))
+    if preparse_length:
+        parsed_filter_list = [w for w in mention_filtered_list if w in words]
+        parsed_length = float(len(parsed_filter_list))
+        # 80%, min=5 -> ~1300 records for amazon5_df : 400s
+        # 50%, min=5 -> ~4800 records ...            : 900s
+        # 50%, min=10 -> ~4300 records ...           : 900s
+        # 25%, min=10 -> ~4500 records ...           : 950s
+        if parsed_length / preparse_length < 0.5 or parsed_length < 10:
+            mention_filtered_text = None
         else:
-            text = None
+            mention_filtered_text = " ".join(parsed_filter_list)
     else:
-        text = None
-    return text
+        mention_filtered_text = None
+    return mention_filtered_text
 
 
 print(len(news_df))
@@ -134,20 +137,33 @@ news_df.drop_duplicates(subset=["timestamp", "published", "text", "site"], inpla
 print(len(news_df))
 news_df.to_csv("data/news_df.csv", encoding="utf-8", index=False)
 
-amazon_df = news_df
-apple_df = news_df
+amazon_df = news_df.copy(deep=True)
+apple_df = news_df.copy(deep=True)
 
 amazon_df["filteredtext"] = amazon_df["text"].apply(
     filter_only_mention, args=("amzn", "amazon")
 )
-
+amazon_df.dropna(subset=["filteredtext"], inplace=True)
+amazon_df["filteredtext"] = amazon_df["filteredtext"].apply(filterStopwords)
+amazon_df.dropna(subset=["filteredtext"], inplace=True)
 amazon_df["filteredtext"] = amazon_df["filteredtext"].apply(filter_only_language)
+amazon_df.dropna(subset=["filteredtext"], inplace=True)
+amazon_df["filteredtext"] = amazon_df["filteredtext"].apply(lemmatize)
+print("before last drop", len(amazon_df))
+amazon_df.dropna(subset=["filteredtext"], inplace=True)
+print("after last drop", len(amazon_df))
+
 
 apple_df["filteredtext"] = apple_df["text"].apply(
     filter_only_mention, args=("aapl", "apple")
 )
-
+apple_df.dropna(subset=["filteredtext"], inplace=True)
+apple_df["filteredtext"] = apple_df["filteredtext"].apply(filterStopwords)
+apple_df.dropna(subset=["filteredtext"], inplace=True)
 apple_df["filteredtext"] = apple_df["filteredtext"].apply(filter_only_language)
+apple_df.dropna(subset=["filteredtext"], inplace=True)
+apple_df["filteredtext"] = apple_df["filteredtext"].apply(lemmatize)
+apple_df.dropna(subset=["filteredtext"], inplace=True)
 
 # Just for safety :P
 amazon5_df = amazon_df.copy(deep=True)
@@ -278,14 +294,14 @@ def remove_duplicates(df):
     count = 0
     # come back and take care of boundary conditions
     while not df.empty:
-        print(len(df))
+        # print(len(df))
         count += 1
-        print("iteration", count)
+        # print("iteration", count)
         chunks.append(df[:chunk_size])
         df = df.iloc[chunk_size - 1 :]
         if count != 1:
-            print(str(chunks[-1].iloc[-1]["filteredtext"]))
-            print(str(chunks[-2].iloc[0]["filteredtext"]))
+            # print(str(chunks[-1].iloc[-1]["filteredtext"]))
+            # print(str(chunks[-2].iloc[0]["filteredtext"]))
             if str(chunks[-1].iloc[-1]["filteredtext"]) == str(
                 chunks[-2].iloc[0]["filteredtext"]
             ):
@@ -301,7 +317,7 @@ def remove_duplicates(df):
         chunk.drop_duplicates(subset=["row_string"], keep="first", inplace=True)
     df = pd.concat(chunks, ignore_index=True)
     df.drop(["row_string"], axis=1, inplace=True)
-    print(len(df))
+    # print(len(df))
     return df
 
 
