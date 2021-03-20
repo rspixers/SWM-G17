@@ -217,6 +217,11 @@ def join_CHARTS_data_and_GT(source_df, interval, company):
         CHARTS_df["year.month.day"].astype(str) + "T" + CHARTS_df["24hr"],
         format="%Y.%m.%dT%H:%M",
     )
+
+    CHARTS_df["label"] = (CHARTS_df["Close"] - CHARTS_df["Open"]).apply(
+        lambda x: 1 if x > 0 else -1
+    )
+    
     right_on = "rounded_time"
     if interval == 60:
         CHARTS_df["timestamp"] = CHARTS_df["temp_timestamp"].dt.round("1H")
@@ -224,9 +229,6 @@ def join_CHARTS_data_and_GT(source_df, interval, company):
         CHARTS_df["timestamp"] = CHARTS_df["temp_timestamp"].dt.round("4H")
     else:
         CHARTS_df["timestamp"] = CHARTS_df["temp_timestamp"]
-    CHARTS_df["label"] = (CHARTS_df["Close"] - CHARTS_df["Open"]).apply(
-        lambda x: 1 if x > 0 else -1
-    )
 
     joined_df = pd.merge(
         CHARTS_df,
