@@ -353,3 +353,53 @@ apple1440_df.to_csv("data/apple1440.csv", encoding="utf-8", index=False)
 
 end = time.time()
 print(end - start)
+
+
+import pysentiment2 as ps
+
+def calculate_polarity_subjectivity(df):
+    lm = ps.LM()
+    hiv4 = ps.HIV4()
+    polarity_array = []
+    subjectivity_array = []
+
+    hiv_polarity = []
+    hiv_subjectivity = []
+    count=0
+    count1=0
+    for x in range(len(df['filteredtext'])):
+        tokens_m = lm.tokenize(df['filteredtext'][x])
+        score_m = lm.get_score(tokens_m)
+        polarity_array.append(score_m['Polarity'])
+        subjectivity_array.append(score_m['Subjectivity'])
+
+        tokens_hiv = hiv4.tokenize(df['filteredtext'][x])
+        score_hiv = hiv4.get_score(tokens_hiv)
+
+        hiv_polarity.append(score_hiv['Polarity'])
+        hiv_subjectivity.append(score_hiv['Subjectivity'])
+        if score_m['Polarity']*score_hiv['Polarity']<0:
+            count+=1
+
+    feature_df = pd.DataFrame()
+    feature_df['Mcdonald_Polarity'] = polarity_array
+    feature_df['Mcdonald_Subjectivity'] = subjectivity_array
+
+    feature_df['HIV_Polarity'] = hiv_polarity
+    feature_df['HIV_Subjectivity'] = hiv_subjectivity
+    return feature_df
+
+feature_amazon5 = calculate_polarity_subjectivity(amazon5_df)
+feature_amazon15 = calculate_polarity_subjectivity(amazon15_df)
+feature_amazon30 = calculate_polarity_subjectivity(amazon30_df)
+feature_amazon60 = calculate_polarity_subjectivity(amazon60_df)
+feature_amazon240 = calculate_polarity_subjectivity(amazon240_df)
+feature_amazon1440 = calculate_polarity_subjectivity(amazon1440_df)
+
+feature_apple5 = calculate_polarity_subjectivity(apple5_df)
+feature_apple15 = calculate_polarity_subjectivity(apple15_df)
+feature_apple30 = calculate_polarity_subjectivity(apple30_df)
+feature_apple60 = calculate_polarity_subjectivity(apple60_df)
+feature_apple240 = calculate_polarity_subjectivity(apple240_df)
+feature_apple1440 = calculate_polarity_subjectivity(apple1440_df)
+
