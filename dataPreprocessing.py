@@ -22,8 +22,14 @@ from nltk.stem import PorterStemmer
 
 import time
 import string
+import spacy
+
+from IPython.display import display
+from gensim.scripts.glove2word2vec import glove2word2vec
+from gensim.models import KeyedVectors
 
 import en_core_web_lg
+
 
 
 start = time.time()
@@ -356,6 +362,31 @@ print(end - start)
 
 
 import pysentiment2 as ps
+def get_glove_embeddings(df):
+        word_list = []
+        for i in df['filteredtext']:
+            x = i[1:-1].split(", ")
+            words = []
+            for j in x:
+                s = j.split(" ")
+                for k in s:
+                    words.append(k)
+            word_list.append(words)
+        filename = './data/glove.6B.100d.txt.word2vec'
+        model = KeyedVectors.load_word2vec_format(filename, binary=False)
+
+
+        embedding_list = []
+        for i in word_list:
+            embeddings = []
+            for j in i:
+                try:
+                    glov = model[j]
+                    embeddings.append(glov)
+                except:
+                    continue
+            embedding_list.append(embeddings)
+        return embedding_list
 
 def calculate_polarity_subjectivity(df):
     lm = ps.LM()
@@ -387,6 +418,9 @@ def calculate_polarity_subjectivity(df):
 
     feature_df['HIV_Polarity'] = hiv_polarity
     feature_df['HIV_Subjectivity'] = hiv_subjectivity
+
+    feature_df['GloVe_embedding'] = get_glove_embeddings(df)
+
     return feature_df
 
 feature_amazon5 = calculate_polarity_subjectivity(amazon5_df)
