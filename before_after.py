@@ -195,7 +195,8 @@ amazon_df = news_df.copy(deep=True)
 apple_df = news_df.copy(deep=True)
 
 amazon_df["filteredtext"] = amazon_df["text"].apply(
-    filter_1sentence_only_mention, args=("amzn", "amazon")
+    filter_beforeAfter_only_mention, args=("amzn", "amazon")
+    # filter_1sentence_only_mention, args=("amzn", "amazon")
 )
 amazon_df.dropna(subset=["filteredtext"], inplace=True)
 amazon_df["filteredtext"] = amazon_df["filteredtext"].apply(filterStopwords)
@@ -209,7 +210,8 @@ print("after last drop", len(amazon_df))
 
 
 apple_df["filteredtext"] = apple_df["text"].apply(
-    filter_1sentence_only_mention, args=("aapl", "apple")
+    filter_beforeAfter_only_mention, args=("aapl", "apple")
+    # filter_1sentence_only_mention, args=("aapl", "apple")
 )
 apple_df.dropna(subset=["filteredtext"], inplace=True)
 apple_df["filteredtext"] = apple_df["filteredtext"].apply(filterStopwords)
