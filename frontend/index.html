@@ -1,0 +1,115 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title>Directional Stock Prediction</title>
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script> -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+    <script src="scripts.js"></script>
+
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="header">
+            <div>CSE 573 Semantic Web Mining Project - Group 17</div>
+            <div>Directional Stock Prediction using News Articles</div>
+        </div>
+        <div id="tabs">
+            <div class='tab'>
+                <div id="amazon">AMZN</div>
+                <div id="ama_active" class="active_bar"></div>
+            </div>
+            <div class='tab'>
+                <div id="apple">AAPL</div>
+                <div id="aapl_active" class=""></div>
+            </div>
+        </div>
+        <div id="content">
+            <div id="ama">
+                <div class="heading">
+                    Momentum of the stock
+                </div>
+                <div id="amazon_momentum" class='linechart'></div>
+                <div class="heading">
+                    Results
+                </div>
+                <div id="amazon_results" class='linechart'></div>
+                <div class="heading">
+                    Testing
+                </div>
+                <div id="testing_ama">
+                    <div>
+                        <label class="mdc-text-field mdc-text-field--filled mdc-text-field--textarea mdc-text-field--no-label">
+                            <span class="mdc-text-field__ripple"></span>
+                            <span class="mdc-text-field__resizer">
+                            <textarea class="mdc-text-field__input" aria-label="Label"></textarea>
+                            </span>
+                            <span class="mdc-line-ripple"></span>
+                        </label>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Select Model
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item">SVM</a>
+                        <a class="dropdown-item">LR</a>
+                        <a class="dropdown-item">Random Forest</a>
+                        <a class="dropdown-item">LSTM</a>
+                        </div>
+                    </div>
+                    <div id="button">
+                        Get Direction
+                    </div>
+                </div>   
+            </div>
+            <div id="aapl" class="">
+                <div class="heading">
+                    Momentum of the stock
+                </div>
+                <div id="apple_momentum" class='linechart'></div>
+                <div class="heading">
+                    Results
+                </div>
+                <div id="apple_results" class='linechart'></div>
+                <div id="testing_aapl">
+                    <div>
+                        <label class="mdc-text-field mdc-text-field--filled mdc-text-field--textarea mdc-text-field--no-label">
+                            <span class="mdc-text-field__ripple"></span>
+                            <span class="mdc-text-field__resizer">
+                            <textarea class="mdc-text-field__input" aria-label="Label"></textarea>
+                            </span>
+                            <span class="mdc-line-ripple"></span>
+                        </label>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Select Model
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item">SVM</a>
+                        <a class="dropdown-item">LR</a>
+                        <a class="dropdown-item">Random Forest</a>
+                        <a class="dropdown-item">LSTM</a>
+                        </div>
+                    </div>
+                    <div id="button">
+                        Get Direction
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
