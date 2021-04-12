@@ -42,28 +42,36 @@ $( document ).ready(function() {
 
 
 
-    $("#button").on("click", function(){
-     console.log("Hello");
-     var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
-     xmlhttp.open("POST", "http://0.0.0.0:8000/api/amazon");
-     xmlhttp.setRequestHeader("Content-Type", "application/json");
-
-     console.log('')   
-     xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState == XMLHttpRequest.DONE) {
-            console.log(xmlhttp.responseText);
+    $(".submitform").on("click", function(ele){
+        var url, text_value, selected_model, res_div;
+        if($(ele.target).attr('id') == "ama_button"){
+            url = "http://a0f6b00284fd.ngrok.io/api/amazon";
+            text_value = $("#testing_ama textarea").val();
+            selected_model = $("#testing_ama select").val();
+            res_div = $("#testing_ama .directions");
         }
-    }
+        else{
+            url = "http://a0f6b00284fd.ngrok.io/api/apple";
+            text_value = $("#testing_aapl textarea").val();
+            selected_model = $("#testing_aapl select").val();
+            res_div = $("#testing_aapl .directions");
+        }
 
+        var send_obj = {news_text: text_value, model: selected_model}
+        console.log(send_obj);
 
-    xmlhttp.setRequestHeader("Access-Control-Allow-Origin", "*");
-    xmlhttp.send(JSON.stringify({mytext:"nfreiuniv",model:"ofmo"}));
-
-
-
-
-    
-
+        $.ajax({url: url, 
+            data: send_obj ,
+            dataType: 'json',
+            success: function(result){
+                console.log(result);
+                $(res_div).html("");
+                for (const key in result) {
+                    $(res_div).append(result[key] ? "<div class='res positive'>"+ key +" predicted the news will INCREASE the stock price</div>"
+                                                : "<div class='res negative'>"+ key +" predicted the news will DECREASE the stock price</div>" )
+                }
+            }
+        });
     });
 
 });

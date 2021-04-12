@@ -30,10 +30,16 @@ body{
     height: 150px;
 }
 
-.dropdown-toggle, .dropdown-menu, .dropdown-item, #dropdownMenuButton {
-    width: 100%;
-    font-size: 14px;
+.dropdown .form-select{
+    background-color: #5c636a;
+    border-color: #565e64;
+    color: #fff;
 }
+
+.dropdown .form-select option{
+    text-align: center;
+}
+
 
 #content{
     padding: 20px;
@@ -69,7 +75,7 @@ body{
     margin-top: 20px;
 }
 
-#button{
+.submitform{
     background-color: #8C1D40;
     color: #fff;
     text-align: center;
@@ -79,4 +85,20 @@ body{
     border-radius: 5px;
     margin-top: 20px;
     cursor: pointer;
+}
+
+.directions{
+    margin-top: 20px;
+}
+
+.directions div{
+    margin: 5px;
+}
+
+.positive{
+    color: #20c997;
+}
+
+.negative{
+    color: #dc3545;
 }

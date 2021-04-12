@@ -3,31 +3,32 @@ from flask_cors import CORS, cross_origin
 
 
 app = Flask(__name__)
-CORS(app, support_credentials=True)
-
-@app.route('/api/apple', methods=['POST','GET'])
-@cross_origin(supports_credentials=True)
-def amazon_ml():
-    content = request.json
-    print(content['mytext'])
-    print("apple")
-
-    model=content['model']
-
-    #condintional checks
-    return jsonify({"label":1})
+# CORS(app, support_credentials=True)
 
 @app.route('/api/amazon', methods=['POST','GET'])
 @cross_origin(supports_credentials=True)
-def apple_ml():
-    content = request.json
-    print(content['mytext'])
-    print(content['model'])
-    model=content['model']
+def amazon_ml():
+    text = request.args.get('news_text')
+    model = request.args.get('model')
 
     #condintional checks
-    return jsonify({"modelName":"indfnd"})
+    return jsonify({"svm": True, "LR": False})
+
+@app.route('/api/apple', methods=['POST','GET'])
+@cross_origin(supports_credentials=True)
+def apple_ml():
+    text = request.args.get('news_text')
+    model = request.args.get('model')
+
+    # condintional checks
+    return jsonify({"Random Forest": True, "LR": False})
+
+
+@app.route('/')
+@cross_origin(supports_credentials=True)
+def hello_world():
+    return 'Hello, World!'
 
 
 if __name__ == "__main__":
-  app.run(host='0.0.0.0', port=8000, debug=True)
+  app.run(debug=True)
