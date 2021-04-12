@@ -39,4 +39,38 @@ $( document ).ready(function() {
     populate_linechart(data, 'apple_momentum');
     populate_linechart(data, 'apple_results');
     $("#aapl").addClass('hide')
+
+
+
+    $("#button").on("click", function(){
+     console.log("Hello");
+     var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
+     xmlhttp.open("POST", "http://0.0.0.0:8000/api/apple");
+     xmlhttp.setRequestHeader("Content-Type", "application/json");
+
+     console.log('')   
+     xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == XMLHttpRequest.DONE) {
+            console.log(xmlhttp.responseText);
+        }
+    }
+
+
+    xmlhttp.setRequestHeader("Access-Control-Allow-Origin", "*");
+    xmlhttp.send(JSON.stringify({mytext:"nfreiuniv"}));
+
+
+
+
+    
+
+    });
+
 });
+
+
+
+
+
+
+
