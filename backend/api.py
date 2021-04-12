@@ -11,6 +11,10 @@ def amazon_ml():
     content = request.json
     print(content['mytext'])
     print("apple")
+
+    model=content['model']
+
+    #condintional checks
     return jsonify({"label":1})
 
 @app.route('/api/amazon', methods=['POST','GET'])
@@ -18,7 +22,11 @@ def amazon_ml():
 def apple_ml():
     content = request.json
     print(content['mytext'])
-    return jsonify({"label":1})
+    print(content['model'])
+    model=content['model']
+
+    #condintional checks
+    return jsonify({"modelName":"indfnd"})
 
 
 if __name__ == "__main__":

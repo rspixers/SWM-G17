@@ -45,7 +45,7 @@ $( document ).ready(function() {
     $("#button").on("click", function(){
      console.log("Hello");
      var xmlhttp = new XMLHttpRequest();   // new HttpRequest instance 
-     xmlhttp.open("POST", "http://0.0.0.0:8000/api/apple");
+     xmlhttp.open("POST", "http://0.0.0.0:8000/api/amazon");
      xmlhttp.setRequestHeader("Content-Type", "application/json");
 
      console.log('')   
@@ -57,7 +57,7 @@ $( document ).ready(function() {
 
 
     xmlhttp.setRequestHeader("Access-Control-Allow-Origin", "*");
-    xmlhttp.send(JSON.stringify({mytext:"nfreiuniv"}));
+    xmlhttp.send(JSON.stringify({mytext:"nfreiuniv",model:"ofmo"}));
 
 
 
