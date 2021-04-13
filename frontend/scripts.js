@@ -1,23 +1,93 @@
 $( document ).ready(function() {
 
-    // Amazon momentum
-    var trace1 = {
-        x: [1, 2, 3, 4],
-        y: [10, 15, 13, 17],
-        type: 'scatter'
-    };
     
-    var trace2 = {
-        x: [1, 2, 3, 4],
-        y: [16, 5, 11, 9],
-        type: 'scatter'
-    };
-    
-    var data = [trace1, trace2];
+    //  momentum
+    function populate_momentum_linechart(){
+        Plotly.d3.csv("../data/CHARTS/AMAZON1440.csv", function(err, rows){
 
+            function unpack(rows, key) {
+                return rows.map(function(row) { return row[key]; });
+            }
 
-    function populate_linechart(data, id){
-        Plotly.newPlot(id, data);
+            var trace1 = {
+                type: "scatter",
+                mode: "lines",
+                name: 'AMZN',
+                x: unpack(rows, 'Date'),
+                y: unpack(rows, 'Open'),
+                line: {color: '#FFD700'}
+            }
+
+            var data = [trace1];
+            Plotly.newPlot('amazon_momentum', data);
+        });
+
+            Plotly.d3.csv("../data/CHARTS/APPLE1440.csv", function(err, rows){
+
+                function unpack2(rows, key) {
+                    return rows.map(function(row) { return row[key]; });
+                }
+        
+                var trace2 = {
+                    type: "scatter",
+                    mode: "lines",
+                    name: 'APPL',
+                    x: unpack2(rows, 'Date'),
+                    y: unpack2(rows, 'Open'),
+                    line: {color: '#FFD700'}
+                }
+
+                var data2 = [trace2];
+                Plotly.newPlot('apple_momentum', data2);
+                $("#aapl").addClass('hide');
+            });
+            
+        
+    }
+
+    let amazon_model_metrics = ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM'];
+    let amazon_accuracy = [0.6957083393139084,0.7398449834936127,0.7656093009903833,0.7645327974738051];
+    let amazon_f1 = [0.5591599085048866,0.17029068436713207,0.4460651289009498,0.4169184290030212];
+
+    let apple_model_metrics =  ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM'];
+    let apple_accuracy = [0.10,0.6547685040129184,0.83585998569971,0.8374346243763707]
+    let apple_f1 = [0.10,0.6253269626477872,0.6969099081724993,0.691657142857143]
+
+    function populate_barchart(data,accuracy,f1, id){
+        var trace1 = {
+            x: data,
+            y: accuracy,
+            name: 'Accuracy',
+            type: 'bar',
+            marker: {
+                color: '#FFC627'
+            }
+        };
+
+        var trace2 = {
+            x: data,
+            y: f1,
+            name: 'F1 score',
+            type: 'bar',
+            marker: {
+                color: '#8C1D40'
+            }
+        };
+
+        var chart_data = [trace1, trace2];
+
+        var layout = {
+            barmode: 'group',
+            title: 'Evaluation Metrics',
+            xaxis: {
+                title: "Models"
+            },
+            yaxis: {
+                title: "Values"
+            }
+        };
+
+        Plotly.newPlot(id, chart_data, layout);
     }
 
     $("#amazon").on("click", function(){
@@ -34,24 +104,29 @@ $( document ).ready(function() {
         $("#aapl_active").addClass('active_bar');
     });
 
-    populate_linechart(data, 'amazon_momentum');
-    populate_linechart(data, 'amazon_results');
-    populate_linechart(data, 'apple_momentum');
-    populate_linechart(data, 'apple_results');
-    $("#aapl").addClass('hide')
+            
+
+
+
+    populate_momentum_linechart();
+
+    // populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_precision, amazon_recall, amazon_f1, 'amazon_results');
+    populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_f1, 'amazon_results');
+    populate_barchart(apple_model_metrics,apple_accuracy, apple_f1, 'apple_results');
+
 
 
 
     $(".submitform").on("click", function(ele){
         var url, text_value, selected_model, res_div;
         if($(ele.target).attr('id') == "ama_button"){
-            url = "http://a0f6b00284fd.ngrok.io/api/amazon";
+            url = "http://6c4fed3d59c5.ngrok.io/api/amazon";
             text_value = $("#testing_ama textarea").val();
             selected_model = $("#testing_ama select").val();
             res_div = $("#testing_ama .directions");
         }
         else{
-            url = "http://a0f6b00284fd.ngrok.io/api/apple";
+            url = "http://6c4fed3d59c5.ngrok.io/api/apple";
             text_value = $("#testing_aapl textarea").val();
             selected_model = $("#testing_aapl select").val();
             res_div = $("#testing_aapl .directions");

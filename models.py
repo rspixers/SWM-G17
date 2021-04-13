@@ -40,7 +40,7 @@ import pysentiment2 as ps
 
 amazon_data = pd.read_csv('./data/Amazon_processed.csv')
 apple_data = pd.read_csv('./data/Apple_Processed.csv')
-# resultant_data1.shape
+
 
 amazon_data = amazon_data[amazon_data.text.notnull()]
 apple_data = apple_data[apple_data.text.notnull()]
@@ -83,7 +83,6 @@ Xtest_positive,Xtest_positive = calculate_polarity(X_test)
 
 
 # 2 gram
-
 vectorizer = CountVectorizer(ngram_range = (2,2),max_features = 4000, min_df = 10)
 X_train_processed_text = X_train
 X_test_processed_text = X_test
