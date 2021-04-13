@@ -23,7 +23,6 @@ import unicodedata
 import re
 import pandas as pd
 import numpy as np
-import pickle
 
 def removenonAscii(words):
     words_list=[]
@@ -73,8 +72,6 @@ def dataPreprocessing(sentence):
     return sentence
 
 
-
-
 def get_sentences(news_article):
     paragraphs = nltk.sent_tokenize(news_article.lower())
     sentences=[]
@@ -107,9 +104,9 @@ def get_sentences(news_article):
 
     return processed_data_df
 
-
+import pickle
 def SentimentVectorizer():
-  path = "./pickles/vectorizer"
+  path = "./sample_data/vectorizer"
   infile = open(path,'rb')
   vectorizer_file = pickle.load(infile)
   infile.close()
@@ -137,9 +134,9 @@ def extractFeatures(Xtest):
 
 def LRPrediction(text):
   if text.lower() == 'apple':
-    path = "./pickles/Apple_Logistic_Regression.sav"
+    path = "./sample_data/Apple_Logistic_Regression.sav"
   else:
-    path = "./pickles/Amazon_Logistic_Regression.sav"
+    path = "./sample_data/Amazon_Logistic_Regression.sav"
 
   
   infile = open(path,'rb')
@@ -150,9 +147,9 @@ def LRPrediction(text):
 
 def MLPPrediction(text):
   if text.lower() == 'apple':
-    path = "./pickles/Apple_MLP.sav"
+    path = "./sample_data/Apple_MLP.sav"
   else:
-    path = "./pickles/Amazon_MLP.sav"
+    path = "./sample_data/Amazon_MLP.sav"
   infile = open(path,'rb')
   MLP = pickle.load(infile)
   infile.close()
@@ -161,9 +158,9 @@ def MLPPrediction(text):
 
 def LinearSVMPrediction(text):
   if text.lower() == 'apple':
-    path = "./pickles/Apple_SVM_LinearSVC.sav"
+    path = "./sample_data/Apple_SVM_LinearSVC.sav"
   else:
-    path = "./pickles/Amazon_SVM_LinearSVC.sav"
+    path = "./sample_data/Amazon_SVM_LinearSVC.sav"
   
   infile = open(path,'rb')
   LinearSVC = pickle.load(infile)
@@ -173,9 +170,9 @@ def LinearSVMPrediction(text):
 
 def NaiveBayesPrediction(text):
   if text.lower() == 'apple':
-    path = "./pickles/Apple_Naive_Bayes.sav"
+    path = "./sample_data/Apple_Naive_Bayes.sav"
   else:
-    path = "./pickles/Amazon_Naive_Bayes.sav"
+    path = "./sample_data/Amazon_Naive_Bayes.sav"
   
   infile = open(path,'rb')
   NB = pickle.load(infile)
@@ -184,7 +181,16 @@ def NaiveBayesPrediction(text):
   return NB
 
 def RandomForestPrediction(text):
-  pass
+  if text.lower() == 'apple':
+    path = "./sample_data/Apple_Naive_Bayes.sav"
+  else:
+    path = "./sample_data/Amazon_Naive_Bayes.sav"
+  
+  infile = open(path,'rb')
+  NB = pickle.load(infile)
+  infile.close()
+
+  return NB
   # if text.lower() == 'apple':
   #   path = "./sample_data/RF_Apple.sav"
   # else:
@@ -196,49 +202,88 @@ def RandomForestPrediction(text):
 
   # return RF
 
-def predictStockPrices(text,model,newsType):
+def preprocessingFeatureExtraction(text):
   sentences = get_sentences(text)
- 
+  sentences_test = extractFeatures(sentences)
+  return sentences_test
 
-  if(len(sentences)!=0 and newsType == 'Apple'):
-    apple_sentences_test = extractFeatures(sentences)
-    if model.lower() == 'lr':
+def predictStockPrices(text,model,newsType):
+  
+  sentences_test = preprocessingFeatureExtraction(text)
+  print(model)
+  if(len(sentences_test)!=0 and newsType == 'Apple'):
+    if model.lower() == 'logistic regression':
       model = LRPrediction('Apple')
-    elif model.lower() == 'nb':
+    elif model.lower() == 'naive bayes':
       model = NaiveBayesPrediction('Apple')
-    elif model.lower() =='linearsvm':
+    elif model.lower() =='linear svm':
       model = LinearSVMPrediction('Apple')
     elif model.lower() == 'mlp':
       model = MLPPrediction('Apple')
     else:
       model = RandomForestPrediction('Apple')
 
-    prediction_apple = model.predict(apple_sentences_test)
+    prediction_apple = model.predict(sentences_test)
     if(prediction_apple[0] == 0):
       return False
     else:
       return True
 
-  if(len(sentences)!=0 and newsType == 'Amazon'):
-    amazon_sentences_test = extractFeatures(sentences)
-    if model.lower() == 'lr':
+  if(len(sentences_test)!=0 and newsType == 'Amazon'):
+    if model.lower() == 'logistic regression':
       model = LRPrediction('Amazon')
-    elif model.lower() == 'nb':
+    elif model.lower() == 'naive bayes':
       model = NaiveBayesPrediction('Amazon')
-    elif model.lower() =='linearsvm':
+    elif model.lower() =='linear svm':
       model = LinearSVMPrediction('Amazon')
     elif model.lower() == 'mlp':
       model = MLPPrediction('Amazon')
     else:
       model = RandomForestPrediction('Amazon')
 
-    prediction_amazon = model.predict(amazon_sentences_test)
+    prediction_amazon = model.predict(sentences_test)
     if(prediction_amazon[0] == 0):
       return False
     else:
       return True
 
-text = "aapl account troubling development aapl account value standard widely consider good representation stock market broad economy"
-result = predictStockPrices(text,'LR','Apple')
-print(result)
+
+def predictAllModels(text,newsType):
+  sentences_test = preprocessingFeatureExtraction(text)
+  model = LRPrediction(newsType)
+  model_LR  = model.predict(sentences_test)
+  model = NaiveBayesPrediction(newsType)
+  model_NB = model.predict(sentences_test)
+  model = LinearSVMPrediction(newsType)
+  model_LSVM = model.predict(sentences_test)
+  model = MLPPrediction(newsType)
+  model_MLP = model.predict(sentences_test)
+
+  data = {}
+  data['Logistic Regression'] = True if model_LR[0] else False
+  data['Naive Bayes'] = True if model_NB[0] else False
+  data['Linear SVM'] = True if model_LSVM[0] else False
+  data['MLP'] = True if model_MLP[0] else False
+
+  json_data = json.dumps(data)
+
+  return json_data
+
+import json
+def prediction(text,model,newsType):
+  if model != 'All':
+    data = {}
+    result = predictStockPrices(text,model,newsType)
+    data[model] = result
+    json_data = json.dumps(data)
+    return json_data
+  else:
+    return predictAllModels(text,newsType)
+
+#Example
+# text = "aapl account troubling development aapl account value standard widely consider good representation stock market broad economy"
+# result = prediction(text,'All','Apple')
+# print(result)
+
+
 
