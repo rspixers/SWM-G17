@@ -1,53 +1,47 @@
 $( document ).ready(function() {
 
+    
     //  momentum
+    function populate_momentum_linechart(){
+        Plotly.d3.csv("../data/CHARTS/AMAZON1440.csv", function(err, rows){
 
-    function populate_linechart(id){
-        if(id=='amazon_momentum'){
-            Plotly.d3.csv("../data/CHARTS/AMAZON1440.csv", function(err, rows){
-
-                function unpack(rows, key) {
+            function unpack(rows, key) {
                 return rows.map(function(row) { return row[key]; });
-                }
-        
-        
-                var trace1 = {
+            }
+
+            var trace1 = {
                 type: "scatter",
                 mode: "lines",
                 name: 'AMZN',
                 x: unpack(rows, 'Date'),
                 y: unpack(rows, 'Open'),
                 line: {color: '#FFD700'}
-                }
-        
-        
-        
-                var data = [trace1];
-                Plotly.newPlot('amazon_momentum', data);
-            });
-        }else if(id=='apple_momentum'){
+            }
+
+            var data = [trace1];
+            Plotly.newPlot('amazon_momentum', data);
+        });
+
             Plotly.d3.csv("../data/CHARTS/APPLE1440.csv", function(err, rows){
 
                 function unpack2(rows, key) {
-                return rows.map(function(row) { return row[key]; });
+                    return rows.map(function(row) { return row[key]; });
                 }
-        
         
                 var trace2 = {
-                type: "scatter",
-                mode: "lines",
-                name: 'APPL',
-                x: unpack2(rows, 'Date'),
-                y: unpack2(rows, 'Open'),
-                line: {color: '#FFD700'}
+                    type: "scatter",
+                    mode: "lines",
+                    name: 'APPL',
+                    x: unpack2(rows, 'Date'),
+                    y: unpack2(rows, 'Open'),
+                    line: {color: '#FFD700'}
                 }
-        
-        
-        
+
                 var data2 = [trace2];
                 Plotly.newPlot('apple_momentum', data2);
+                $("#aapl").addClass('hide');
             });
-        }
+            
         
     }
 
@@ -114,14 +108,12 @@ $( document ).ready(function() {
 
 
 
-    populate_linechart('amazon_momentum');
-    populate_linechart('apple_momentum');
+    populate_momentum_linechart();
 
     // populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_precision, amazon_recall, amazon_f1, 'amazon_results');
     populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_f1, 'amazon_results');
     populate_barchart(apple_model_metrics,apple_accuracy, apple_f1, 'apple_results');
 
-    $("#aapl").addClass('hide')
 
 
 
