@@ -232,7 +232,7 @@ def predictStockPrices(text,model,newsType):
     else:
       model = RandomForestPrediction('Amazon')
 
-    prediction_amazon = model.predict(amazon_sentences)
+    prediction_amazon = model.predict(amazon_sentences_test)
     if(prediction_amazon[0] == 0):
       return False
     else:
