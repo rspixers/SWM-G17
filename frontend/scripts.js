@@ -20,16 +20,12 @@ $( document ).ready(function() {
         Plotly.newPlot(id, data);
     }
 
-    let amazon_model_metrics = ['SVM', 'Logistic Regression', 'Random Forest', 'Naive Bayes', 'Multi Layered Perceptron'];
-    let amazon_accuracy = [50,60,83,40,75]
-    // let amazon_precision = [60,80,70,62,82]
-    // let amazon_recall = [58,73,62,71,70]
-    let amazon_f1 = [62,43,76,73,51]
+    let amazon_model_metrics = ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM'];
+    let amazon_accuracy = [0.6957083393139084,0.7398449834936127,0.7656093009903833,0.7645327974738051];
+    let amazon_f1 = [0.5591599085048866,0.17029068436713207,0.4460651289009498,0.4169184290030212];
 
-    let apple_model_metrics = ['SVM', 'Logistic Regression', 'Random Forest', 'Naive Bayes', 'Multi Layered Perceptron'];
+    let apple_model_metrics = ['SVM', 'Logistic Regression', 'Random Forest', 'Naive Bayes', 'MLP'];
     let apple_accuracy = [40,70,73,30,65]
-    // let apple_precision = [60,80,70,62,82]
-    // let apple_recall = [58,73,62,71,70]
     let apple_f1 = [62,43,76,73,51]
 
     function populate_barchart(data,accuracy,f1, id){
@@ -62,7 +58,7 @@ $( document ).ready(function() {
                 title: "Models"
             },
             yaxis: {
-                title: "Percentage"
+                title: "Values"
             }
         };
 
@@ -84,7 +80,6 @@ $( document ).ready(function() {
     });
 
     populate_linechart(data, 'amazon_momentum');
-    // populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_precision, amazon_recall, amazon_f1, 'amazon_results');
     populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_f1, 'amazon_results');
     populate_linechart(data, 'apple_momentum');
     populate_barchart(apple_model_metrics,apple_accuracy, apple_f1, 'apple_results');
