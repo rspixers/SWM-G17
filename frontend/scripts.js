@@ -45,13 +45,13 @@ $( document ).ready(function() {
         
     }
 
-    let amazon_model_metrics = ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM'];
-    let amazon_accuracy = [0.6957083393139084,0.7398449834936127,0.7656093009903833,0.7645327974738051];
-    let amazon_f1 = [0.5591599085048866,0.17029068436713207,0.4460651289009498,0.4169184290030212];
+    let amazon_model_metrics = ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM','LSTM'];
+    let amazon_accuracy = [0.6957083393139084,0.7398449834936127,0.7656093009903833,0.7645327974738051, 0.72];
+    let amazon_f1 = [0.5591599085048866,0.17029068436713207,0.4460651289009498,0.4169184290030212, 0.84];
 
-    let apple_model_metrics =  ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM'];
-    let apple_accuracy = [0.8614317964538494,0.6547685040129184,0.83585998569971,0.8374346243763707]
-    let apple_f1 = [0.7556732866815878,0.6253269626477872,0.6969099081724993,0.691657142857143]
+    let apple_model_metrics =  ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM', 'LSTM'];
+    let apple_accuracy = [0.8614317964538494,0.6547685040129184,0.83585998569971,0.8374346243763707, 0.70]
+    let apple_f1 = [0.7556732866815878,0.6253269626477872,0.6969099081724993,0.691657142857143, 0.82]
 
     function populate_barchart(data,accuracy,f1, id){
         var trace1 = {
