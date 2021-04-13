@@ -106,7 +106,7 @@ def get_sentences(news_article):
 
 import pickle
 def SentimentVectorizer():
-  path = "./sample_data/vectorizer"
+  path = "./pickles/vectorizer"
   infile = open(path,'rb')
   vectorizer_file = pickle.load(infile)
   infile.close()
@@ -134,9 +134,9 @@ def extractFeatures(Xtest):
 
 def LRPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_Logistic_Regression.sav"
+    path = "./pickles/Apple_Logistic_Regression.sav"
   else:
-    path = "./sample_data/Amazon_Logistic_Regression.sav"
+    path = "./pickles/Amazon_Logistic_Regression.sav"
 
   
   infile = open(path,'rb')
@@ -147,9 +147,9 @@ def LRPrediction(text):
 
 def MLPPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_MLP.sav"
+    path = "./pickles/Apple_MLP.sav"
   else:
-    path = "./sample_data/Amazon_MLP.sav"
+    path = "./pickles/Amazon_MLP.sav"
   infile = open(path,'rb')
   MLP = pickle.load(infile)
   infile.close()
@@ -158,9 +158,9 @@ def MLPPrediction(text):
 
 def LinearSVMPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_SVM_LinearSVC.sav"
+    path = "./pickles/Apple_SVM_LinearSVC.sav"
   else:
-    path = "./sample_data/Amazon_SVM_LinearSVC.sav"
+    path = "./pickles/Amazon_SVM_LinearSVC.sav"
   
   infile = open(path,'rb')
   LinearSVC = pickle.load(infile)
@@ -170,9 +170,9 @@ def LinearSVMPrediction(text):
 
 def NaiveBayesPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_Naive_Bayes.sav"
+    path = "./pickles/Apple_Naive_Bayes.sav"
   else:
-    path = "./sample_data/Amazon_Naive_Bayes.sav"
+    path = "./pickles/Amazon_Naive_Bayes.sav"
   
   infile = open(path,'rb')
   NB = pickle.load(infile)
@@ -182,9 +182,9 @@ def NaiveBayesPrediction(text):
 
 def RandomForestPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_Naive_Bayes.sav"
+    path = "./pickles/Apple_Naive_Bayes.sav"
   else:
-    path = "./sample_data/Amazon_Naive_Bayes.sav"
+    path = "./pickles/Amazon_Naive_Bayes.sav"
   
   infile = open(path,'rb')
   NB = pickle.load(infile)
@@ -192,9 +192,9 @@ def RandomForestPrediction(text):
 
   return NB
   # if text.lower() == 'apple':
-  #   path = "./sample_data/RF_Apple.sav"
+  #   path = "./pickles/RF_Apple.sav"
   # else:
-  #   path = "./sample_data/RF_Amazon.sav"
+  #   path = "./pickles/RF_Amazon.sav"
   
   # infile = open(path,'rb')
   # RF = pickle.load(infile)
