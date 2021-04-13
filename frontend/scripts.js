@@ -1,23 +1,54 @@
 $( document ).ready(function() {
 
-    // Amazon momentum
-    var trace1 = {
-        x: [1, 2, 3, 4],
-        y: [10, 15, 13, 17],
-        type: 'scatter'
-    };
-    
-    var trace2 = {
-        x: [1, 2, 3, 4],
-        y: [16, 5, 11, 9],
-        type: 'scatter'
-    };
-    
-    var data = [trace1, trace2];
+    //  momentum
 
+    function populate_linechart(id){
+        if(id=='amazon_momentum'){
+            Plotly.d3.csv("../data/CHARTS/AMAZON1440.csv", function(err, rows){
 
-    function populate_linechart(data, id){
-        Plotly.newPlot(id, data);
+                function unpack(rows, key) {
+                return rows.map(function(row) { return row[key]; });
+                }
+        
+        
+                var trace1 = {
+                type: "scatter",
+                mode: "lines",
+                name: 'AMZN',
+                x: unpack(rows, 'Date'),
+                y: unpack(rows, 'Open'),
+                line: {color: '#FFD700'}
+                }
+        
+        
+        
+                var data = [trace1];
+                Plotly.newPlot('amazon_momentum', data);
+            });
+        }else if(id=='apple_momentum'){
+            Plotly.d3.csv("../data/CHARTS/APPLE1440.csv", function(err, rows){
+
+                function unpack2(rows, key) {
+                return rows.map(function(row) { return row[key]; });
+                }
+        
+        
+                var trace2 = {
+                type: "scatter",
+                mode: "lines",
+                name: 'APPL',
+                x: unpack2(rows, 'Date'),
+                y: unpack2(rows, 'Open'),
+                line: {color: '#FFD700'}
+                }
+        
+        
+        
+                var data2 = [trace2];
+                Plotly.newPlot('apple_momentum', data2);
+            });
+        }
+        
     }
 
     let amazon_model_metrics = ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM'];
@@ -79,10 +110,17 @@ $( document ).ready(function() {
         $("#aapl_active").addClass('active_bar');
     });
 
-    populate_linechart(data, 'amazon_momentum');
+            
+
+
+
+    populate_linechart('amazon_momentum');
+    populate_linechart('apple_momentum');
+
+    // populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_precision, amazon_recall, amazon_f1, 'amazon_results');
     populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_f1, 'amazon_results');
-    populate_linechart(data, 'apple_momentum');
     populate_barchart(apple_model_metrics,apple_accuracy, apple_f1, 'apple_results');
+
     $("#aapl").addClass('hide')
 
 
