@@ -20,6 +20,55 @@ $( document ).ready(function() {
         Plotly.newPlot(id, data);
     }
 
+    let amazon_model_metrics = ['SVM', 'Logistic Regression', 'Random Forest', 'Naive Bayes', 'Multi Layered Perceptron'];
+    let amazon_accuracy = [50,60,83,40,75]
+    // let amazon_precision = [60,80,70,62,82]
+    // let amazon_recall = [58,73,62,71,70]
+    let amazon_f1 = [62,43,76,73,51]
+
+    let apple_model_metrics = ['SVM', 'Logistic Regression', 'Random Forest', 'Naive Bayes', 'Multi Layered Perceptron'];
+    let apple_accuracy = [40,70,73,30,65]
+    // let apple_precision = [60,80,70,62,82]
+    // let apple_recall = [58,73,62,71,70]
+    let apple_f1 = [62,43,76,73,51]
+
+    function populate_barchart(data,accuracy,f1, id){
+        var trace1 = {
+            x: data,
+            y: accuracy,
+            name: 'Accuracy',
+            type: 'bar',
+            marker: {
+                color: '#FFC627'
+            }
+        };
+
+        var trace2 = {
+            x: data,
+            y: f1,
+            name: 'F1 score',
+            type: 'bar',
+            marker: {
+                color: '#8C1D40'
+            }
+        };
+
+        var chart_data = [trace1, trace2];
+
+        var layout = {
+            barmode: 'group',
+            title: 'Evaluation Metrics',
+            xaxis: {
+                title: "Models"
+            },
+            yaxis: {
+                title: "Percentage"
+            }
+        };
+
+        Plotly.newPlot(id, chart_data, layout);
+    }
+
     $("#amazon").on("click", function(){
         $("#aapl").addClass('hide');
         $("#ama").removeClass('hide');
@@ -35,9 +84,10 @@ $( document ).ready(function() {
     });
 
     populate_linechart(data, 'amazon_momentum');
-    populate_linechart(data, 'amazon_results');
+    // populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_precision, amazon_recall, amazon_f1, 'amazon_results');
+    populate_barchart(amazon_model_metrics,amazon_accuracy, amazon_f1, 'amazon_results');
     populate_linechart(data, 'apple_momentum');
-    populate_linechart(data, 'apple_results');
+    populate_barchart(apple_model_metrics,apple_accuracy, apple_f1, 'apple_results');
     $("#aapl").addClass('hide')
 
 
@@ -45,13 +95,13 @@ $( document ).ready(function() {
     $(".submitform").on("click", function(ele){
         var url, text_value, selected_model, res_div;
         if($(ele.target).attr('id') == "ama_button"){
-            url = "http://a0f6b00284fd.ngrok.io/api/amazon";
+            url = "http://6c4fed3d59c5.ngrok.io/api/amazon";
             text_value = $("#testing_ama textarea").val();
             selected_model = $("#testing_ama select").val();
             res_div = $("#testing_ama .directions");
         }
         else{
-            url = "http://a0f6b00284fd.ngrok.io/api/apple";
+            url = "http://6c4fed3d59c5.ngrok.io/api/apple";
             text_value = $("#testing_aapl textarea").val();
             selected_model = $("#testing_aapl select").val();
             res_div = $("#testing_aapl .directions");
