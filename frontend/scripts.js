@@ -119,6 +119,7 @@ $( document ).ready(function() {
 
     $(".submitform").on("click", function(ele){
         var url, text_value, selected_model, res_div;
+        $(".loader").removeClass('hide');
         let ngrok_url = "http://3481dce567cd.ngrok.io/";
         if($(ele.target).attr('id') == "ama_button"){
             url = ngrok_url + "api/amazon";
@@ -132,6 +133,7 @@ $( document ).ready(function() {
             selected_model = $("#testing_aapl select").val();
             res_div = $("#testing_aapl .directions");
         }
+        $(res_div).html("");
 
         var send_obj = {news_text: text_value, model: selected_model}
         console.log(send_obj);
@@ -141,7 +143,7 @@ $( document ).ready(function() {
             dataType: 'json',
             success: function(result){
                 console.log(result);
-                $(res_div).html("");
+                $(".loader").addClass('hide');
                 for (const key in result) {
                     $(res_div).append(result[key] ? "<div class='res positive'>"+ key +" predicted the news will INCREASE the stock price</div>"
                                                 : "<div class='res negative'>"+ key +" predicted the news will DECREASE the stock price</div>" )
