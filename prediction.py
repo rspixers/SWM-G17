@@ -9,7 +9,7 @@ Original file is located at
 
 import nltk
 nltk.downloader.download('vader_lexicon')
-from nltk.corpus import stopwords
+# from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import LancasterStemmer,PorterStemmer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -44,6 +44,8 @@ def stemmatize(words):
 def filterStopWords(words):
     words_list=[]
     for w in words:
+        # print(w)
+        # print(stopwords)
         if w not in stopwords:
             words_list.append(w)
     return words_list
@@ -101,12 +103,11 @@ def get_sentences(news_article):
     processed_data_df['words'] = processed_data_df.words.apply(dataPreprocessing)
     processed_data_df['text'] = processed_data_df.words.apply(lambda words: " ".join(words))
     processed_data_df = processed_data_df.drop(columns="words")
-
     return processed_data_df
 
 import pickle
 def SentimentVectorizer():
-  path = "./sample_data/vectorizer"
+  path = "./pickles/vectorizer"
   infile = open(path,'rb')
   vectorizer_file = pickle.load(infile)
   infile.close()
@@ -134,9 +135,9 @@ def extractFeatures(Xtest):
 
 def LRPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_Logistic_Regression.sav"
+    path = "./pickles/Apple_Logistic_Regression.sav"
   else:
-    path = "./sample_data/Amazon_Logistic_Regression.sav"
+    path = "./pickles/Amazon_Logistic_Regression.sav"
 
   
   infile = open(path,'rb')
@@ -147,9 +148,9 @@ def LRPrediction(text):
 
 def MLPPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_MLP.sav"
+    path = "./pickles/Apple_MLP.sav"
   else:
-    path = "./sample_data/Amazon_MLP.sav"
+    path = "./pickles/Amazon_MLP.sav"
   infile = open(path,'rb')
   MLP = pickle.load(infile)
   infile.close()
@@ -158,9 +159,9 @@ def MLPPrediction(text):
 
 def LinearSVMPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_SVM_LinearSVC.sav"
+    path = "./pickles/Apple_SVM_LinearSVC.sav"
   else:
-    path = "./sample_data/Amazon_SVM_LinearSVC.sav"
+    path = "./pickles/Amazon_SVM_LinearSVC.sav"
   
   infile = open(path,'rb')
   LinearSVC = pickle.load(infile)
@@ -170,9 +171,9 @@ def LinearSVMPrediction(text):
 
 def NaiveBayesPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_Naive_Bayes.sav"
+    path = "./pickles/Apple_Naive_Bayes.sav"
   else:
-    path = "./sample_data/Amazon_Naive_Bayes.sav"
+    path = "./pickles/Amazon_Naive_Bayes.sav"
   
   infile = open(path,'rb')
   NB = pickle.load(infile)
@@ -182,9 +183,9 @@ def NaiveBayesPrediction(text):
 
 def RandomForestPrediction(text):
   if text.lower() == 'apple':
-    path = "./sample_data/Apple_Naive_Bayes.sav"
+    path = "./pickles/Apple_Naive_Bayes.sav"
   else:
-    path = "./sample_data/Amazon_Naive_Bayes.sav"
+    path = "./pickles/Amazon_Naive_Bayes.sav"
   
   infile = open(path,'rb')
   NB = pickle.load(infile)
@@ -192,9 +193,9 @@ def RandomForestPrediction(text):
 
   return NB
   # if text.lower() == 'apple':
-  #   path = "./sample_data/RF_Apple.sav"
+  #   path = "./pickles/RF_Apple.sav"
   # else:
-  #   path = "./sample_data/RF_Amazon.sav"
+  #   path = "./pickles/RF_Amazon.sav"
   
   # infile = open(path,'rb')
   # RF = pickle.load(infile)
@@ -208,9 +209,9 @@ def preprocessingFeatureExtraction(text):
   return sentences_test
 
 def predictStockPrices(text,model,newsType):
-  
+  # print("&&&&&&&&&&&&&&&&&&&&")
   sentences_test = preprocessingFeatureExtraction(text)
-  print(model)
+  # print(sentences_test)
   if(len(sentences_test)!=0 and newsType == 'Apple'):
     if model.lower() == 'logistic regression':
       model = LRPrediction('Apple')
@@ -231,6 +232,7 @@ def predictStockPrices(text,model,newsType):
 
   if(len(sentences_test)!=0 and newsType == 'Amazon'):
     if model.lower() == 'logistic regression':
+      # print(model)
       model = LRPrediction('Amazon')
     elif model.lower() == 'naive bayes':
       model = NaiveBayesPrediction('Amazon')
@@ -242,6 +244,9 @@ def predictStockPrices(text,model,newsType):
       model = RandomForestPrediction('Amazon')
 
     prediction_amazon = model.predict(sentences_test)
+    # print(sentences_test)
+    # print("&*&&*((()())(P*)*&*)&")
+    # print(prediction_amazon)
     if(prediction_amazon[0] == 0):
       return False
     else:
@@ -258,12 +263,14 @@ def predictAllModels(text,newsType):
   model_LSVM = model.predict(sentences_test)
   model = MLPPrediction(newsType)
   model_MLP = model.predict(sentences_test)
+  result_LSTM=glove_feature_lstm(text,newsType)
 
   data = {}
   data['Logistic Regression'] = True if model_LR[0] else False
   data['Naive Bayes'] = True if model_NB[0] else False
   data['Linear SVM'] = True if model_LSVM[0] else False
   data['MLP'] = True if model_MLP[0] else False
+  data['LSTM']=result_LSTM
 
   json_data = json.dumps(data)
 
@@ -272,8 +279,14 @@ def predictAllModels(text,newsType):
 import json
 def prediction(text,model,newsType):
   if model != 'All':
-    data = {}
-    result = predictStockPrices(text,model,newsType)
+    data={}
+    # print("****(*******")
+    # print(text)
+    # print("****(*******")
+    if model != 'LSTM':
+      result = predictStockPrices(text,model,newsType)
+    else:
+      result=glove_feature_lstm(text,newsType)
     data[model] = result
     json_data = json.dumps(data)
     return json_data
@@ -286,4 +299,105 @@ def prediction(text,model,newsType):
 # print(result)
 
 
+import pandas as pd
+import numpy as np
+import os
+from tqdm import tqdm_notebook
+from tensorflow.keras import regularizers, initializers, optimizers, callbacks
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
+from keras.utils.np_utils import to_categorical
+from tensorflow.keras.layers import *
+from tensorflow.keras.models import Model
+
+import pickle
+from sklearn.metrics import classification_report
+
+import pandas as pd
+import numpy as np
+import os
+
+from IPython.display import display
+from gensim.scripts.glove2word2vec import glove2word2vec
+from gensim.models import KeyedVectors
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
+from sklearn.feature_extraction.text import TfidfVectorizer
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import LinearSVC
+from sklearn.feature_extraction.text import CountVectorizer
+from scipy.sparse import hstack
+import nltk
+nltk.downloader.download('vader_lexicon')
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from tqdm import tqdm
+import scipy as sp
+import pickle
+from sklearn.model_selection import train_test_split
+import pysentiment2 as ps 
+import pandas as pd
+import numpy as np
+import os
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
+from sklearn.feature_extraction.text import TfidfVectorizer
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+from tensorflow import keras
+
+
+def glove_feature_lstm(text,company):
+  text1 = get_sentences(text)
+  # print(text1)
+  # print("859804803083")
+  text=""
+  for st in text1:
+    text=text+" "+st
+  text=text[1:]
+  # print(text)
+  MAX_NB_WORDS = 100000    # max no. of words for tokenizer
+  MAX_SEQUENCE_LENGTH = 2000 # max length of each entry (sentence), including padding
+  VALIDATION_SPLIT = 0.2   # data for validation (not used in training)
+  EMBEDDING_DIM = 100      # embedding dimensions for word vectors (word2vec/GloVe)
+  GLOVE_DIR = "SWM_Data/glove.6B."+str(EMBEDDING_DIM)+"d.txt"
+  x_val=[text]
+  tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
+  tokenizer.fit_on_texts(x_val)
+  sequences = tokenizer.texts_to_sequences(x_val)
+  word_index = tokenizer.word_index
+  # print('Vocabulary size:', len(word_index))
+  data = pad_sequences(sequences, padding = 'post', maxlen = MAX_SEQUENCE_LENGTH)
+  recon_model=None
+  if company == 'Amazon':
+    recon_model = keras.models.load_model('pickles/amazon_glov_lstm')
+  else:
+    recon_model = keras.models.load_model('pickles/apple_glov_lstm')
+  y_pred = recon_model.predict(data, batch_size=64, verbose=0)
+  # y_pred_bool = np.argmax(y_pred, axis=1)
+  # print(y_pred)
+  # print("o543u50394u5")
+  if(y_pred[0] >= 0.5):
+      return True
+  else:
+      return False
 
