@@ -46,8 +46,8 @@ $( document ).ready(function() {
     }
 
     let amazon_model_metrics = ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM','LSTM'];
-    let amazon_accuracy = [0.6957083393139084,0.7398449834936127,0.7656093009903833,0.7645327974738051, 0.72];
-    let amazon_f1 = [0.5591599085048866,0.17029068436713207,0.4460651289009498,0.4169184290030212, 0.84];
+    let amazon_accuracy = [0.6964977752260657,0.74228505813119,0.762092722836228,0.761446820726281, 0.72];
+    let amazon_f1 = [0.562532326471501, 0.15525758645024704,0.43458980044345896, 0.39847991313789355, 0.84];
 
     let apple_model_metrics =  ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM', 'LSTM'];
     let apple_accuracy = [0.8614317964538494,0.6547685040129184,0.83585998569971,0.8374346243763707, 0.70]
@@ -119,14 +119,15 @@ $( document ).ready(function() {
 
     $(".submitform").on("click", function(ele){
         var url, text_value, selected_model, res_div;
+        let ngrok_url = "http://3481dce567cd.ngrok.io/";
         if($(ele.target).attr('id') == "ama_button"){
-            url = "http://6c4fed3d59c5.ngrok.io/api/amazon";
+            url = ngrok_url + "api/amazon";
             text_value = $("#testing_ama textarea").val();
             selected_model = $("#testing_ama select").val();
             res_div = $("#testing_ama .directions");
         }
         else{
-            url = "http://6c4fed3d59c5.ngrok.io/api/apple";
+            url = ngrok_url + "api/apple";
             text_value = $("#testing_aapl textarea").val();
             selected_model = $("#testing_aapl select").val();
             res_div = $("#testing_aapl .directions");
