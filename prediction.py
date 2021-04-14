@@ -369,18 +369,29 @@ from tensorflow import keras
 def glove_feature_lstm(text,company):
   text1 = get_sentences(text)
   # print(text1)
+  # print(type(text1))
   # print("859804803083")
   text=""
-  for st in text1:
-    text=text+" "+st
+  for index, row in text1.iterrows():
+    text=text+" "+row['text']
+  # for st in text1:
+  #   print(st)
+  #   print("^^^^^^")
+  #   text=text+" "+st
+  # print(text)
+  # print("38208042824")
   text=text[1:]
   # print(text)
+  # print("102020")
+
   MAX_NB_WORDS = 100000    # max no. of words for tokenizer
   MAX_SEQUENCE_LENGTH = 2000 # max length of each entry (sentence), including padding
   VALIDATION_SPLIT = 0.2   # data for validation (not used in training)
   EMBEDDING_DIM = 100      # embedding dimensions for word vectors (word2vec/GloVe)
   GLOVE_DIR = "SWM_Data/glove.6B."+str(EMBEDDING_DIM)+"d.txt"
   x_val=[text]
+  # print("o543u50394u5")
+  # print(x_val)
   tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
   tokenizer.fit_on_texts(x_val)
   sequences = tokenizer.texts_to_sequences(x_val)
@@ -396,6 +407,8 @@ def glove_feature_lstm(text,company):
   # y_pred_bool = np.argmax(y_pred, axis=1)
   # print(y_pred)
   # print("o543u50394u5")
+  # print(y_pred)
+  # print(y_pred[0] >= 0.5)
   if(y_pred[0] >= 0.5):
       return True
   else:
