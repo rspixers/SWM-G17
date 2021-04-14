@@ -203,7 +203,7 @@ def RandomForestPrediction(text):
 
 def preprocessingFeatureExtraction(text):
   sentences = get_sentences(text)
-  sentences_test = extractFeatures(sentences)
+  sentences_test = extractFeatures(sentences.text)
   return sentences_test
 
 def predictStockPrices(text,model,newsType):
@@ -310,6 +310,107 @@ from tensorflow.keras.models import Model
 
 import pickle
 from sklearn.metrics import classification_report
+
+import pandas as pd
+import numpy as np
+import os
+
+from IPython.display import display
+from gensim.scripts.glove2word2vec import glove2word2vec
+from gensim.models import KeyedVectors
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
+from sklearn.feature_extraction.text import TfidfVectorizer
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import LinearSVC
+from sklearn.feature_extraction.text import CountVectorizer
+from scipy.sparse import hstack
+import nltk
+nltk.downloader.download('vader_lexicon')
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from tqdm import tqdm
+import scipy as sp
+import pickle
+from sklearn.model_selection import train_test_split
+import pysentiment2 as ps 
+import pandas as pd
+import numpy as np
+import os
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
+from sklearn.feature_extraction.text import TfidfVectorizer
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+from sklearn.metrics import f1_score
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import accuracy_score
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+from tensorflow import keras
+
+
+def glove_feature_lstm(text,company):
+  text1 = get_sentences(text)
+  # print(text1)
+  # print(type(text1))
+  # print("859804803083")
+  text=""
+  for index, row in text1.iterrows():
+    text=text+" "+row['text']
+  # for st in text1:
+  #   print(st)
+  #   print("^^^^^^")
+  #   text=text+" "+st
+  # print(text)
+  # print("38208042824")
+  text=text[1:]
+  # print(text)
+  # print("102020")
+
+  MAX_NB_WORDS = 100000    # max no. of words for tokenizer
+  MAX_SEQUENCE_LENGTH = 2000 # max length of each entry (sentence), including padding
+  VALIDATION_SPLIT = 0.2   # data for validation (not used in training)
+  EMBEDDING_DIM = 100      # embedding dimensions for word vectors (word2vec/GloVe)
+  GLOVE_DIR = "SWM_Data/glove.6B."+str(EMBEDDING_DIM)+"d.txt"
+  x_val=[text]
+  # print("o543u50394u5")
+  # print(x_val)
+  tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
+  tokenizer.fit_on_texts(x_val)
+  sequences = tokenizer.texts_to_sequences(x_val)
+  word_index = tokenizer.word_index
+  # print('Vocabulary size:', len(word_index))
+  data = pad_sequences(sequences, padding = 'post', maxlen = MAX_SEQUENCE_LENGTH)
+  recon_model=None
+  if company == 'Amazon':
+    recon_model = keras.models.load_model('pickles/amazon_glov_lstm')
+  else:
+    recon_model = keras.models.load_model('pickles/apple_glov_lstm')
+  y_pred = recon_model.predict(data, batch_size=64, verbose=0)
+  # y_pred_bool = np.argmax(y_pred, axis=1)
+  # print(y_pred)
+  # print("o543u50394u5")
+  # print(y_pred)
+  # print(y_pred[0] >= 0.5)
+  if(y_pred[0] >= 0.5):
+      return True
+  else:
+      return False
 
 import pandas as pd
 import numpy as np

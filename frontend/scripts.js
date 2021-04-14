@@ -46,12 +46,12 @@ $( document ).ready(function() {
     }
 
     let amazon_model_metrics = ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM','LSTM'];
-    let amazon_accuracy = [0.6957083393139084,0.7398449834936127,0.7656093009903833,0.7645327974738051, 0.72];
-    let amazon_f1 = [0.5591599085048866,0.17029068436713207,0.4460651289009498,0.4169184290030212, 0.84];
+    let amazon_accuracy = [0.6964977752260657,0.74228505813119,0.762092722836228,0.761446820726281, 0.974185908821788];
+    let amazon_f1 = [0.562532326471501, 0.15525758645024704,0.43458980044345896, 0.39847991313789355, 0.9530374838431711];
 
     let apple_model_metrics =  ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM', 'LSTM'];
-    let apple_accuracy = [0.8614317964538494,0.6547685040129184,0.83585998569971,0.8374346243763707, 0.70]
-    let apple_f1 = [0.7556732866815878,0.6253269626477872,0.6969099081724993,0.691657142857143, 0.82]
+    let apple_accuracy = [0.8614317964538494,0.6547685040129184,0.83585998569971,0.8374346243763707, 0.9653]
+    let apple_f1 = [0.7556732866815878,0.6253269626477872,0.6969099081724993,0.691657142857143, 0.9456]
 
     function populate_barchart(data,accuracy,f1, id){
         var trace1 = {
@@ -119,18 +119,21 @@ $( document ).ready(function() {
 
     $(".submitform").on("click", function(ele){
         var url, text_value, selected_model, res_div;
+        $(".loader").removeClass('hide');
+        let ngrok_url = "http://3481dce567cd.ngrok.io/";
         if($(ele.target).attr('id') == "ama_button"){
-            url = "http://6c4fed3d59c5.ngrok.io/api/amazon";
+            url = ngrok_url + "api/amazon";
             text_value = $("#testing_ama textarea").val();
             selected_model = $("#testing_ama select").val();
             res_div = $("#testing_ama .directions");
         }
         else{
-            url = "http://6c4fed3d59c5.ngrok.io/api/apple";
+            url = ngrok_url + "api/apple";
             text_value = $("#testing_aapl textarea").val();
             selected_model = $("#testing_aapl select").val();
             res_div = $("#testing_aapl .directions");
         }
+        $(res_div).html("");
 
         var send_obj = {news_text: text_value, model: selected_model}
         console.log(send_obj);
@@ -140,7 +143,7 @@ $( document ).ready(function() {
             dataType: 'json',
             success: function(result){
                 console.log(result);
-                $(res_div).html("");
+                $(".loader").addClass('hide');
                 for (const key in result) {
                     $(res_div).append(result[key] ? "<div class='res positive'>"+ key +" predicted the news will INCREASE the stock price</div>"
                                                 : "<div class='res negative'>"+ key +" predicted the news will DECREASE the stock price</div>" )
