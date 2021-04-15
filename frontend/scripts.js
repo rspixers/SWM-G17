@@ -19,7 +19,13 @@ $( document ).ready(function() {
             }
 
             var data = [trace1];
-            Plotly.newPlot('amazon_momentum', data);
+            var layout = {
+                title: 'Amazon Momentum',
+                yaxis: {
+                    title: "Values"
+                }
+            };
+            Plotly.newPlot('amazon_momentum', data, layout);
         });
 
             Plotly.d3.csv("../data/CHARTS/APPLE1440.csv", function(err, rows){
@@ -38,7 +44,13 @@ $( document ).ready(function() {
                 }
 
                 var data2 = [trace2];
-                Plotly.newPlot('apple_momentum', data2);
+                var layout = {
+                    title: 'Apple Momentum',
+                    yaxis: {
+                        title: "Values"
+                    }
+                };
+                Plotly.newPlot('apple_momentum', data2, layout);
                 $("#aapl").addClass('hide');
             });
             
@@ -50,8 +62,8 @@ $( document ).ready(function() {
     let amazon_f1 = [0.562532326471501, 0.15525758645024704,0.43458980044345896, 0.39847991313789355, 0.9530374838431711];
 
     let apple_model_metrics =  ['MLP', 'Naive Bayes', 'Logistic Regression', 'SVM', 'LSTM'];
-    let apple_accuracy = [0.8614317964538494,0.6547685040129184,0.83585998569971,0.8374346243763707, 0.9653]
-    let apple_f1 = [0.7556732866815878,0.6253269626477872,0.6969099081724993,0.691657142857143, 0.9456]
+    let apple_accuracy = [ 0.8521125063266732,0.6529046459874832,0.8359965615032979,0.8365026953636532, 0.9653]
+    let apple_f1 = [0.7419173933768892,0.6244893702087715,0.6978479026671798,0.6893214258453553, 0.9456]
 
     function populate_barchart(data,accuracy,f1, id){
         var trace1 = {
@@ -120,7 +132,7 @@ $( document ).ready(function() {
     $(".submitform").on("click", function(ele){
         var url, text_value, selected_model, res_div;
         $(".loader").removeClass('hide');
-        let ngrok_url = "http://3481dce567cd.ngrok.io/";
+        let ngrok_url = "http://736ba434373f.ngrok.io/";
         if($(ele.target).attr('id') == "ama_button"){
             url = ngrok_url + "api/amazon";
             text_value = $("#testing_ama textarea").val();
